@@ -1,5 +1,4 @@
 const webpack = require('webpack');
-const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const path = require('path');
 
 module.exports = {
@@ -28,7 +27,6 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new FriendlyErrorsWebpackPlugin(),
 		new webpack.ProvidePlugin({
 			$: 'jquery',
 			jQuery: 'jquery'

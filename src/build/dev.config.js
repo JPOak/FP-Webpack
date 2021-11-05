@@ -1,8 +1,7 @@
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const fileExists = require('file-exists');
 const commonConfig = require('./common.config');
 const path = require('path');
@@ -17,7 +16,8 @@ module.exports = merge(commonConfig, {
 
 	output: {
 			path: path.resolve(__dirname, '../../dist/assets/js'),
-			filename: '[name].js'
+			filename: '[name].js',
+      clean: true
 	},
 	devtool: 'source-map',
 	module: {
@@ -38,10 +38,10 @@ module.exports = merge(commonConfig, {
 						{
 								loader: 'postcss-loader', options: {
 										sourceMap: true,
-										config: {
-											path: 'src/build/'
-										}
-								}
+                    postcssOptions: {
+										  config: 'src/build/'
+                  }
+                }
 						},
 						{
 								loader: 'sass-loader',  options: {
@@ -53,8 +53,6 @@ module.exports = merge(commonConfig, {
 		]
 	},
 	plugins: [
-		new CleanWebpackPlugin(['../../dist'], {allowExternal: true
-		}),
 		new MiniCssExtractPlugin({
 				filename: '../css/[name].css'
 				//chunkFilename: "[id].css"
@@ -65,10 +63,11 @@ module.exports = merge(commonConfig, {
 				port: 4000,//Change to any port you want
 				proxy: configDefault.devUrl
 		}),
-		new CopyWebpackPlugin([{
-				from: path.resolve(__dirname, '../assets/images'),
-				to: path.resolve(__dirname, '../../dist/assets/images')
-		}])
+		new CopyWebpackPlugin({
+			patterns: [
+				{ from: path.resolve(__dirname, '../assets/images'), to: path.resolve(__dirname, '../../dist/assets/images') },
+			],
+		})
 	]
 
 });//Config end

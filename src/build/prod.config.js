@@ -1,11 +1,10 @@
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('css-minimizer-webpack-plugin');
 const WebpackAssetsManifest = require('webpack-assets-manifest');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const fileExists = require('file-exists');
 const commonConfig = require('./common.config');
 const path = require('path');
@@ -23,15 +22,15 @@ module.exports = merge(commonConfig, {
 
 	output: {
 		path: path.resolve(__dirname, '../../dist/assets/js'),
-		filename: revisioning + '.js'
+		filename: revisioning + '.js',
+    clean: true
 	},
 	devtool: false,
 	optimization: {
 		minimizer: [
 		new TerserPlugin({
 			parallel: true,
-			extractComments: true,
-			sourceMap: false
+			extractComments: true
 		}),
 		new OptimizeCSSAssetsPlugin({})//Compiles Sass to CSS minifies and removes maps in production
 		]
@@ -52,12 +51,12 @@ module.exports = merge(commonConfig, {
 								}
 						},
 						{
-								loader: 'postcss-loader', options: {
-										sourceMap: false,
-										config: {
-											path: 'src/build/'
-										}
-								}
+              loader: 'postcss-loader', options: {
+                sourceMap: false,
+                postcssOptions: {
+                config: 'src/build/'
+                }
+              }
 						},
 						{
 								loader: 'sass-loader',  options: {
@@ -69,8 +68,6 @@ module.exports = merge(commonConfig, {
 		]
 	},
     plugins: [
-			new CleanWebpackPlugin(['../../dist'], {allowExternal: true
-			}),
       new MiniCssExtractPlugin({
         filename: '../css/' + revisioning + '.css'
         //chunkFilename: "[id].css"
@@ -82,10 +79,11 @@ module.exports = merge(commonConfig, {
 					entry.value = path.basename( entry.value );
 				}
 			}),
-      new CopyWebpackPlugin([{
-        from: path.resolve(__dirname, '../assets/images'),
-        to: path.resolve(__dirname, '../../dist/assets/images')
-      }]),
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: path.resolve(__dirname, '../assets/images'), to: path.resolve(__dirname, '../../dist/assets/images') },
+        ],
+      }),
       new ImageminPlugin({
 				test: /\.(jpe?g|png|gif|svg)$/i,
 				cacheFolder: path.resolve(__dirname, '../../.cache'),
